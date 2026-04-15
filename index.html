@@ -1,26 +1,243 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Brendan's Site</title>
-<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-<link rel="stylesheet" type="text/css" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brendan Viloria</title>
+  <meta
+    name="description"
+    content="Personal site for Brendan Viloria with links to resume, GitHub, LinkedIn, and contact information."
+  >
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<h2>
-Brendan's Site
-</h2>
-<img src=neo.jpg style="display: block; margin: 0 auto; width: 250px; height: 250px">
-<br>
-<div class="yeet">
-  <p id="leet">|-|3770. 1 4|\/| T3|-| 1337357 |-|4X0R 2 3\/R |1\/3!!!1</p>
-  <div class="stuff">
-    <p id="normie">Hi there!
-      Hope you don't mind the h4xx0r look, which I personally think I've pulled off quite nicely. Thanks for stopping by!
-      If you want to contact me, you can do so by emailing bjviloria104@gmail.com.</p>
-    <h3>LINKS TO MY STUFF</h3>
-    <p><a href="https://docs.google.com/document/d/1l9HmcLDp2S5acRlVOcx1SRPjPULT4kw5BpOJuCLp_a0/edit?usp=sharing">Resume</a></p>
-    <p><a href="https://www.linkedin.com/in/hbvbot/">LinkedIn</a></p>
-    <p><a href="https://github.com/hbvbot/">Github</a></p>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-banner" aria-label="Matrix banner image">
+        <div class="hero-banner-media">
+          <img src="neo.jpg" alt="Neo surrounded by frozen bullets in a Matrix scene">
+          <div class="banner-bullets banner-bullets-deep" aria-hidden="true"></div>
+        </div>
+        <div class="banner-bullets banner-bullets-front" aria-hidden="true"></div>
+      </div>
+      <main id="top" class="hero-grid">
+        <section class="hero-copy">
+          <h1>Brendan Viloria</h1>
+          <p id="leet">|-|3770. 1 4|\/| T3|-| 1337357 |-|4X0R 2 3\/R |1\/3!!!1</p>
+          <div class="single-panel">
+            <p id="normie">
+              Hi there! Hope you don't mind the h4xx0r look, which I personally think I've pulled off
+              quite nicely. Thanks for stopping by! If you want to contact me, you can do so by
+              emailing <a class="text-link" href="mailto:bjviloria104@gmail.com">bjviloria104@gmail.com</a>.
+            </p>
+            <p class="inline-links">
+              <a href="https://docs.google.com/document/d/1l9HmcLDp2S5acRlVOcx1SRPjPULT4kw5BpOJuCLp_a0/edit?usp=sharing" target="_blank" rel="noreferrer">Resume</a>
+              <span>/</span>
+              <a href="https://www.linkedin.com/in/hbvbot/" target="_blank" rel="noreferrer">LinkedIn</a>
+              <span>/</span>
+              <a href="https://github.com/hbvbot/" target="_blank" rel="noreferrer">GitHub</a>
+            </p>
+          </div>
+        </section>
+      </main>
+    </header>
   </div>
-</div>
+  <script>
+    (function () {
+      var deepLayer = document.querySelector('.banner-bullets-deep');
+      var frontLayer = document.querySelector('.banner-bullets-front');
+      var referenceImagePath = 'neo.webp';
+      var bulletData;
+      var deepFragment;
+      var frontFragment;
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function applyReferenceGradients() {
+        var referenceImage = new Image();
+
+        function samplePixel(data, width, height, x, y) {
+          var px = clamp(Math.round(x), 0, width - 1);
+          var py = clamp(Math.round(y), 0, height - 1);
+          var idx = ((py * width) + px) * 4;
+
+          return {
+            r: data[idx],
+            g: data[idx + 1],
+            b: data[idx + 2]
+          };
+        }
+
+        function luminance(color) {
+          return (color.r * 0.2126) + (color.g * 0.7152) + (color.b * 0.0722);
+        }
+
+        referenceImage.onload = function () {
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d');
+          var bullets = document.querySelectorAll('.banner-bullet');
+          var imageData;
+          var pixels;
+
+          if (!ctx || !bullets.length) {
+            return;
+          }
+
+          canvas.width = 640;
+          canvas.height = Math.max(220, Math.round(canvas.width * (referenceImage.naturalHeight / referenceImage.naturalWidth)));
+          ctx.drawImage(referenceImage, 0, 0, canvas.width, canvas.height);
+          try {
+            imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          } catch (e) {
+            // Canvas tainted (file:// or cross-origin) — skip gradient sampling
+            return;
+          }
+          pixels = imageData.data;
+
+          bullets.forEach(function (bullet, index) {
+            var xPercent = parseFloat(bullet.dataset.x || '50');
+            var yPercent = parseFloat(bullet.dataset.y || '50');
+            var x = (xPercent / 100) * (canvas.width - 1);
+            var y = (yPercent / 100) * (canvas.height - 1);
+            var c = samplePixel(pixels, canvas.width, canvas.height, x, y);
+            var left = samplePixel(pixels, canvas.width, canvas.height, x - 5, y);
+            var right = samplePixel(pixels, canvas.width, canvas.height, x + 5, y);
+            var up = samplePixel(pixels, canvas.width, canvas.height, x, y - 5);
+            var down = samplePixel(pixels, canvas.width, canvas.height, x, y + 5);
+            var gradX = luminance(right) - luminance(left);
+            var gradY = luminance(down) - luminance(up);
+            var shadeAngle = Math.round((Math.atan2(gradY, gradX) * (180 / Math.PI)) + 180);
+            var localLum = luminance(c);
+            var contrast = Math.abs(gradX) + Math.abs(gradY);
+            var toneBoost = clamp((localLum - 78) / 120, -0.2, 0.24);
+            var contrastBoost = clamp(contrast / 160, 0, 0.34);
+            var baseR = Math.round((c.r * 0.34) + 52);
+            var baseG = Math.round((c.g * 0.34) + 56);
+            var baseB = Math.round((c.b * 0.34) + 54);
+            var shadeDark = {
+              r: clamp(Math.round(baseR * (0.58 + toneBoost * 0.4)), 22, 110),
+              g: clamp(Math.round(baseG * (0.58 + toneBoost * 0.4)), 24, 116),
+              b: clamp(Math.round(baseB * (0.58 + toneBoost * 0.4)), 22, 112)
+            };
+            var shadeMid = {
+              r: clamp(Math.round(baseR * (0.9 + toneBoost * 0.45)), 36, 145),
+              g: clamp(Math.round(baseG * (0.9 + toneBoost * 0.45)), 39, 150),
+              b: clamp(Math.round(baseB * (0.9 + toneBoost * 0.45)), 36, 146)
+            };
+            var shadeLight = {
+              r: clamp(Math.round(baseR * (1.2 + contrastBoost)), 62, 198),
+              g: clamp(Math.round(baseG * (1.2 + contrastBoost)), 66, 206),
+              b: clamp(Math.round(baseB * (1.2 + contrastBoost)), 62, 202)
+            };
+
+            bullet.style.setProperty('--shade-angle', shadeAngle + 'deg');
+            bullet.style.setProperty('--shade-dark', 'rgb(' + shadeDark.r + ', ' + shadeDark.g + ', ' + shadeDark.b + ')');
+            bullet.style.setProperty('--shade-mid', 'rgb(' + shadeMid.r + ', ' + shadeMid.g + ', ' + shadeMid.b + ')');
+            bullet.style.setProperty('--shade-light', 'rgb(' + shadeLight.r + ', ' + shadeLight.g + ', ' + shadeLight.b + ')');
+            // opacity kept at 1 (fully opaque)
+
+            if (index % 9 === 0) {
+              bullet.style.setProperty('--shade-angle', (shadeAngle + 8) + 'deg');
+            }
+          });
+        };
+
+        referenceImage.onerror = function () {
+          // Keep default generated gradients when the reference image is unavailable.
+        };
+
+        referenceImage.src = referenceImagePath;
+      }
+
+      if (!deepLayer || !frontLayer) {
+        return;
+      }
+
+      bulletData = [
+        [0.8, 49, 4.2, 205], [2.2, 60, 3.2, 170], [3.5, 54, 2.6, 145], [4, 69, 4.8, 236], [5.2, 76, 2, 118], [6.5, 40, 2.7, 146],
+        [7.4, 33, 1.9, 102], [8.5, 58, 3.8, 192], [9.6, 67, 1.9, 104], [10.5, 73, 2.1, 118], [11.6, 30, 1.7, 88], [12.2, 44, 4.4, 222],
+        [13.6, 63, 2, 112], [14.5, 25, 1.5, 82], [15.3, 79, 1.8, 102], [16.8, 52, 4.6, 230], [18.1, 33, 2.2, 120], [18.8, 19, 1.4, 78],
+        [19.3, 46, 3.6, 182], [20.7, 58, 2, 108], [21.2, 13, 1.6, 86], [22, 70, 2, 110], [23.2, 23, 4.0, 200], [23.8, 18, 1.3, 72],
+        [24.5, 36, 2.1, 112], [25.7, 49, 1.9, 102], [26.4, 42, 1.6, 86], [27, 61, 3.5, 178], [27.4, 11, 1.2, 68], [28.3, 17, 2.4, 126],
+        [29.1, 52, 1.7, 90], [29.8, 26, 2.2, 118], [30.5, 14, 4.2, 210], [31.1, 35, 2, 108], [32.4, 45, 2.1, 114], [33.2, 61, 1.6, 86],
+        [33.9, 55, 2.4, 128], [34.7, 19, 1.2, 68], [35.4, 66, 2.3, 124], [36.8, 76, 3.8, 192], [37.6, 58, 1.6, 84], [38.2, 27, 1.8, 98],
+        [39.5, 38, 2, 106], [40.1, 70, 1.5, 82], [41.1, 48, 4.6, 232], [41.9, 13, 1.5, 82], [42.7, 58, 2.1, 114], [43.4, 74, 1.4, 76],
+        [44.2, 68, 1.9, 100], [45.1, 42, 1.7, 90], [45.8, 23, 3.4, 172], [46.5, 61, 1.6, 84], [47.3, 32, 2.2, 118], [48.1, 73, 1.5, 80],
+        [48.8, 41, 1.8, 96], [49.6, 15, 1.7, 90], [50.3, 50, 4.0, 202], [51.2, 78, 1.4, 74], [51.8, 59, 2.1, 114], [52.7, 87, 1.5, 82],
+        [53.2, 68, 1.8, 96], [54.5, 26, 5.2, 250], [55.2, 75, 1.4, 74], [56.1, 36, 2.3, 124], [56.9, 58, 3.6, 182], [57.6, 47, 2.1, 114],
+        [58.4, 18, 1.6, 86], [59.1, 57, 2, 108], [60, 73, 1.4, 74], [60.7, 67, 4.2, 212], [61.5, 48, 1.7, 92], [62.1, 29, 2, 108],
+        [63, 77, 1.3, 70], [63.8, 39, 2.7, 146], [64.8, 12, 1.4, 76], [65.3, 49, 3.8, 192], [66.1, 59, 1.7, 92], [66.8, 58, 2, 108],
+        [67.2, 85, 1.5, 82], [68.2, 67, 1.8, 96], [69, 44, 4.4, 220], [69.8, 23, 1.8, 92], [70.4, 72, 1.4, 74], [71.2, 33, 1.9, 100],
+        [72.1, 55, 1.7, 92], [72.5, 16, 1.3, 72], [72.7, 43, 3.6, 182], [73.4, 66, 1.5, 82], [74.2, 53, 1.9, 102], [75.1, 75, 1.3, 70],
+        [75.7, 63, 1.8, 94], [76.4, 49, 4.0, 202], [77.1, 72, 1.6, 86], [78, 58, 1.4, 76], [78.6, 28, 1.9, 100], [79.4, 14, 1.2, 68],
+        [80.1, 38, 1.8, 96], [80.8, 68, 4.8, 240], [81.6, 47, 1.7, 92], [82.4, 57, 1.5, 82], [83.1, 57, 1.7, 90], [84.1, 74, 1.3, 70],
+        [84.6, 66, 1.6, 86], [85.4, 49, 3.4, 172], [86.2, 30, 1.6, 84], [86.8, 18, 1.2, 68], [87.7, 40, 1.5, 80], [88.4, 63, 1.4, 76],
+        [89.2, 49, 1.6, 86], [90, 72, 4.2, 212], [90.8, 58, 1.5, 80], [91.5, 39, 1.3, 72], [92.3, 67, 1.4, 76], [93.1, 54, 1.3, 72],
+        [93.9, 36, 3.8, 190], [94.7, 21, 1.4, 74], [95.4, 45, 1.4, 76], [96.2, 63, 1.2, 68], [96.9, 54, 1.3, 72], [98.4, 63, 1.2, 68],
+        [8.8, 83, 2.4, 130], [12.4, 82, 2, 112], [16.4, 86, 2, 108], [21.3, 84, 1.8, 98], [26.8, 88, 1.8, 98], [32.7, 86, 1.7, 90],
+        [39.1, 86, 1.6, 86], [45.9, 87, 1.5, 82], [52.7, 87, 1.5, 82], [60, 86, 1.4, 78], [67.2, 85, 1.5, 82], [74.5, 84, 1.4, 78],
+        [81.6, 84, 1.4, 76], [88.2, 83, 1.5, 82], [94.3, 82, 1.9, 100], [4.7, 86, 2.2, 122], [97.6, 76, 1.5, 82]
+      ];
+
+      deepFragment = document.createDocumentFragment();
+      frontFragment = document.createDocumentFragment();
+
+      bulletData.forEach(function (data, index) {
+        var bullet = document.createElement('span');
+        var depth = data[3];
+        var driftX = Math.max(4, Math.round(depth * 0.022));
+        var driftY = Math.max(3, Math.round(depth * 0.016));
+        var glow = Math.max(0.1, depth / 440);
+        var stretch = Math.min(3.4, Math.max(1.6, 1.4 + (depth / 160)));
+        var pitch = Math.max(-12, Math.min(12, (50 - data[1]) / 5));
+        var shadeSeed = (Math.sin((index + 1) * 17.23) + 1) / 2;
+        var sizeSeed = (Math.sin((index + 1) * 9.71) + 1) / 2;
+        var sizeScale = data[2] >= 4 ? 0.82 : data[2] >= 3 ? 0.9 : (0.78 + (sizeSeed * 0.24));
+        var bulletSize = Math.max(1.05, Math.pow(data[2], 0.92) * sizeScale);
+        var shadeDark = Math.round(34 + (shadeSeed * 12));
+        var shadeMid = Math.round(56 + (shadeSeed * 16));
+        var shadeLight = Math.round(82 + (shadeSeed * 14));
+        var shadeAngle = Math.round((shadeSeed * 360) + (index * 7)) % 360;
+        var targetLayer = depth >= 170 || data[2] >= 3.8 ? frontFragment : deepFragment;
+
+        bullet.className = 'banner-bullet';
+        bullet.dataset.x = String(data[0]);
+        bullet.dataset.y = String(data[1]);
+        bullet.style.setProperty('--x', data[0]);
+        bullet.style.setProperty('--y', data[1]);
+        bullet.style.setProperty('--size', bulletSize.toFixed(2));
+        bullet.style.setProperty('--depth', depth + 'px');
+        bullet.style.setProperty('--stretch', stretch.toFixed(2));
+        bullet.style.setProperty('--tilt', ((data[0] - 50) / 8).toFixed(2) + 'deg');
+        bullet.style.setProperty('--pitch', pitch.toFixed(2) + 'deg');
+        bullet.style.setProperty('--duration', (4.8 + ((index % 9) * 0.33)).toFixed(2) + 's');
+        bullet.style.setProperty('--delay', ((index % 11) * -0.42).toFixed(2) + 's');
+        bullet.style.setProperty('--drift-x', driftX + 'px');
+        bullet.style.setProperty('--drift-y', driftY + 'px');
+        bullet.style.setProperty('--float-range', Math.max(3, Math.round(data[2] * 1.5)) + 'px');
+        bullet.style.setProperty('--glow', glow.toFixed(2));
+        bullet.style.setProperty('--tail', Math.max(8, Math.round(data[2] * 4.2)) + 'px');
+        bullet.style.setProperty('--shade-angle', shadeAngle + 'deg');
+        bullet.style.setProperty('--shade-dark', 'rgb(' + shadeDark + ', ' + (shadeDark + 4) + ', ' + (shadeDark + 2) + ')');
+        bullet.style.setProperty('--shade-mid', 'rgb(' + shadeMid + ', ' + (shadeMid + 5) + ', ' + (shadeMid + 3) + ')');
+        bullet.style.setProperty('--shade-light', 'rgb(' + shadeLight + ', ' + (shadeLight + 6) + ', ' + (shadeLight + 4) + ')');
+
+        targetLayer.appendChild(bullet);
+      });
+
+      deepLayer.appendChild(deepFragment);
+      frontLayer.appendChild(frontFragment);
+      applyReferenceGradients();
+    }());
+  </script>
 </body>
 </html>
