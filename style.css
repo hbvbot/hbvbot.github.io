@@ -22,6 +22,9 @@
   --text: #f4fbff;
   --muted: rgba(233, 248, 255, 0.8);
 
+  --font-display: "Quicksand", "Segoe UI", "Frutiger", "Lucida Grande", Helvetica, Arial, sans-serif;
+  --font-body: "Nunito Sans", "Segoe UI", "Frutiger", "Lucida Grande", Helvetica, Arial, sans-serif;
+
   --radius-panel: 30px;
   --radius-pill: 999px;
 
@@ -41,7 +44,7 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
-  font-family: "Segoe UI", "Frutiger", "Frutiger Linotype", "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   background: #062a52;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -589,12 +592,16 @@ a {
 
 /* ---------------------------------------------------------- hero copy */
 
+/* Lifted above .panel-gloss, which paints later in DOM order and would
+   otherwise lay a white wash over the type. */
 .hero-copy {
   position: relative;
+  z-index: 1;
 }
 
 .eyebrow {
   margin: 0 0 12px;
+  font-family: var(--font-display);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.28em;
@@ -612,22 +619,42 @@ a {
   text-shadow: 0 1px 2px rgba(6, 52, 88, 0.55);
 }
 
+/* Liquid chrome. Dark-dominant on purpose: the glass behind is light
+   blue, so a pale chrome dissolves into it. Deep navy with a white
+   specular flash at the 50% break is what actually reads as metal. */
 .wordmark {
   position: relative;
   margin: 0;
-  font-size: clamp(2.4rem, 7.4vw, 4.1rem);
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1.04;
-  background: linear-gradient(180deg, #ffffff 0%, #ffffff 46%, #e8f7ff 54%, #cdecff 82%, #ffffff 100%);
+  font-family: var(--font-display);
+  font-size: clamp(2.3rem, 7vw, 3.9rem);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
+  background:
+    linear-gradient(
+      180deg,
+      #eaf7ff 0%,
+      #9fd2ee 9%,
+      #2f7fb5 26%,
+      #0a4373 43%,
+      #052c4e 49.6%,
+      #ffffff 50%,
+      #dff4ff 52.5%,
+      #4b9cd0 64%,
+      #0d4a7c 82%,
+      #06375f 93%,
+      #63aeda 100%
+    );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+  /* White glow lifts the dark metal off the glass; the tight white
+     top edge reads as the lit bevel. */
   filter:
-    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.4))
-    drop-shadow(0 2px 5px rgba(4, 40, 74, 0.75))
-    drop-shadow(0 8px 26px rgba(4, 40, 74, 0.55));
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.8))
+    drop-shadow(0 0 7px rgba(216, 245, 255, 0.55))
+    drop-shadow(0 4px 10px rgba(4, 34, 62, 0.5));
 }
 
 /* Mirrored wordmark fading away below the type. */
@@ -649,8 +676,11 @@ a {
 }
 
 .tagline {
-  margin: 16px 0 0;
-  font-size: clamp(1rem, 2.2vw, 1.16rem);
+  margin: 14px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.98rem, 2vw, 1.06rem);
+  font-weight: 500;
+  letter-spacing: 0.004em;
   color: var(--muted);
   text-shadow: 0 1px 3px rgba(6, 52, 88, 0.5);
 }
@@ -659,8 +689,9 @@ a {
   position: relative;
   margin: 28px 0 0;
   padding-top: 26px;
-  font-size: 1.02rem;
-  line-height: 1.74;
+  font-size: 1.03rem;
+  font-weight: 400;
+  line-height: 1.76;
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 1px 3px rgba(6, 52, 88, 0.45);
 }
@@ -723,8 +754,10 @@ a {
     0 8px 20px rgba(6, 52, 88, 0.38),
     0 1px 2px rgba(6, 52, 88, 0.34);
   color: #fff;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 0.97rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-shadow: 0 1px 2px rgba(5, 49, 79, 0.65);
   overflow: hidden;
   cursor: pointer;
@@ -812,6 +845,15 @@ a {
 
   .glass-panel {
     padding: 34px 22px 32px;
+  }
+
+  /* Thinner strokes at this size get swamped by the glow, so drop it
+     and add weight to keep the chrome reading. */
+  .wordmark {
+    font-weight: 700;
+    filter:
+      drop-shadow(0 1px 0 rgba(255, 255, 255, 0.6))
+      drop-shadow(0 3px 8px rgba(4, 34, 62, 0.6));
   }
 
   .aero-button {
