@@ -1,24 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Oldschool red and blue pill favicon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Glossy aqua bubble favicon">
   <defs>
-    <linearGradient id="pillRed" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ff8181"/>
-      <stop offset="1" stop-color="#e43030"/>
-    </linearGradient>
-    <linearGradient id="pillBlue" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#93beff"/>
-      <stop offset="1" stop-color="#2f62df"/>
-    </linearGradient>
+    <radialGradient id="body" cx="50%" cy="50%" r="50%">
+      <stop offset="52%" stop-color="#7fd8f5" stop-opacity="0.18"/>
+      <stop offset="84%" stop-color="#35c8f5" stop-opacity="0.62"/>
+      <stop offset="100%" stop-color="#0f7cba" stop-opacity="0.95"/>
+    </radialGradient>
+    <radialGradient id="sheen" cx="32%" cy="28%" r="34%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bounce" cx="68%" cy="76%" r="30%">
+      <stop offset="0%" stop-color="#c9f6ff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#c9f6ff" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
-  <g transform="rotate(-24 24 32)">
-    <rect x="1" y="21" width="39" height="22" rx="11" fill="url(#pillRed)"/>
-    <rect x="19.8" y="21" width="2" height="22" fill="#ffd4d4" opacity="0.85"/>
-    <rect x="8" y="25" width="10" height="4" rx="2" fill="#fff2f2" opacity="0.65"/>
-  </g>
-
-  <g transform="rotate(24 40 32)">
-    <rect x="24" y="21" width="39" height="22" rx="11" fill="url(#pillBlue)"/>
-    <rect x="42.8" y="21" width="2" height="22" fill="#d7e4ff" opacity="0.85"/>
-    <rect x="31" y="25" width="10" height="4" rx="2" fill="#f4f7ff" opacity="0.65"/>
-  </g>
+  <circle cx="32" cy="32" r="29" fill="url(#body)"/>
+  <circle cx="32" cy="32" r="29" fill="url(#bounce)"/>
+  <circle cx="32" cy="32" r="29" fill="url(#sheen)"/>
+  <circle cx="32" cy="32" r="29" fill="none" stroke="#ffffff" stroke-opacity="0.9" stroke-width="1.6"/>
+  <ellipse cx="23" cy="20" rx="7.5" ry="5" fill="#ffffff" fill-opacity="0.95" transform="rotate(-28 23 20)"/>
 </svg>
