@@ -13,23 +13,77 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <div class="sky" aria-hidden="true">
+  <!-- SVG filters: real turbulence for the water caustics and bubble refraction. -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="caustics">
+        <feTurbulence type="fractalNoise" baseFrequency="0.024 0.014" numOctaves="2" seed="7" result="noise">
+          <animate attributeName="baseFrequency" dur="24s" values="0.024 0.014; 0.034 0.02; 0.024 0.014" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="1.4"/>
+      </filter>
+
+      <filter id="swoosh-warp">
+        <feTurbulence type="fractalNoise" baseFrequency="0.004 0.008" numOctaves="2" seed="3" result="n">
+          <animate attributeName="seed" dur="30s" values="3;9;3" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="60" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="6"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="stage" aria-hidden="true">
+    <div class="sky"></div>
     <div class="sky-glow"></div>
     <div class="sky-rays"></div>
-    <div class="sky-hills"></div>
-    <div class="lens-flare"></div>
-  </div>
 
-  <div class="bubbles" aria-hidden="true"></div>
+    <div class="swoosh-wrap" data-parallax="0.5">
+      <div class="swoosh swoosh-a"></div>
+      <div class="swoosh swoosh-b"></div>
+      <div class="swoosh swoosh-c"></div>
+    </div>
+
+    <div class="sun" data-parallax="0.2">
+      <div class="sun-core"></div>
+      <div class="sun-bloom"></div>
+    </div>
+    <div class="flare-ghosts">
+      <span style="--p:22%; --s:14px; --c:rgba(180,255,220,0.5)"></span>
+      <span style="--p:34%; --s:34px; --c:rgba(150,220,255,0.32)"></span>
+      <span style="--p:46%; --s:9px;  --c:rgba(255,230,170,0.55)"></span>
+      <span style="--p:58%; --s:60px; --c:rgba(140,255,200,0.16)"></span>
+      <span style="--p:71%; --s:20px; --c:rgba(200,180,255,0.36)"></span>
+      <span style="--p:86%; --s:44px; --c:rgba(120,230,255,0.2)"></span>
+    </div>
+
+    <div class="hills" data-parallax="1.1">
+      <div class="hill hill-far"></div>
+      <div class="hill hill-near"></div>
+      <div class="grass"></div>
+    </div>
+
+    <div class="water" data-parallax="1.6">
+      <div class="water-body"></div>
+      <div class="caustics"></div>
+      <div class="water-shine"></div>
+    </div>
+
+    <div class="bubbles bubbles-far" data-parallax="0.35"></div>
+    <div class="sparkles"></div>
+  </div>
 
   <div class="page-shell">
     <main id="top" class="hero">
-      <section class="glass-panel hero-panel">
-        <div class="panel-gloss" aria-hidden="true"></div>
+      <section class="glass-panel hero-panel" data-parallax="-0.16">
+        <div class="panel-gloss"></div>
+        <div class="panel-sweep"></div>
+        <div class="panel-rim"></div>
 
         <header class="hero-copy">
-          <p class="eyebrow">Personal Site</p>
-          <h1>Brendan&nbsp;Viloria</h1>
+          <p class="eyebrow"><span>Personal&nbsp;Site</span></p>
+          <h1 class="wordmark" data-text="Brendan Viloria">Brendan&nbsp;Viloria</h1>
           <p class="tagline">Software engineer. Clean builds, calm interfaces, and the occasional bubble.</p>
         </header>
 
@@ -47,23 +101,29 @@
             target="_blank"
             rel="noreferrer"
           >
-            <span class="button-gloss" aria-hidden="true"></span>
+            <span class="button-gloss"></span>
+            <span class="button-shine"></span>
             <span class="button-label">Resume</span>
           </a>
           <a class="aero-button" href="https://www.linkedin.com/in/hbvbot/" target="_blank" rel="noreferrer">
-            <span class="button-gloss" aria-hidden="true"></span>
+            <span class="button-gloss"></span>
+            <span class="button-shine"></span>
             <span class="button-label">LinkedIn</span>
           </a>
           <a class="aero-button" href="https://github.com/hbvbot/" target="_blank" rel="noreferrer">
-            <span class="button-gloss" aria-hidden="true"></span>
+            <span class="button-gloss"></span>
+            <span class="button-shine"></span>
             <span class="button-label">GitHub</span>
           </a>
           <a class="aero-button aero-button-mail" href="mailto:bjviloria104@gmail.com">
-            <span class="button-gloss" aria-hidden="true"></span>
+            <span class="button-gloss"></span>
+            <span class="button-shine"></span>
             <span class="button-label">Email</span>
           </a>
         </nav>
       </section>
+
+      <div class="panel-reflection" aria-hidden="true"></div>
 
       <footer class="site-footer">
         <span>&copy; Brendan Viloria</span>
@@ -71,35 +131,110 @@
     </main>
   </div>
 
+  <div class="bubbles bubbles-near" aria-hidden="true"></div>
+
   <script>
     (function () {
-      var layer = document.querySelector('.bubbles');
-      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-      var BUBBLE_COUNT = 26;
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      if (!layer || reduceMotion.matches) {
-        return;
+      /* ---------------------------------------------------- bubbles */
+      function fillBubbles(layer, count, opts) {
+        if (!layer) {
+          return;
+        }
+
+        var fragment = document.createDocumentFragment();
+
+        for (var i = 0; i < count; i++) {
+          var bubble = document.createElement('span');
+          var size = opts.min + Math.random() * (opts.max - opts.min);
+
+          bubble.className = 'bubble';
+          bubble.style.setProperty('--size', size.toFixed(1) + 'px');
+          bubble.style.setProperty('--left', (Math.random() * 100).toFixed(2) + '%');
+          bubble.style.setProperty('--drift', (Math.random() * 160 - 80).toFixed(1) + 'px');
+          bubble.style.setProperty('--spin', (Math.random() * 360).toFixed(0) + 'deg');
+          bubble.style.setProperty('--rise-duration', (opts.slow + Math.random() * opts.vary).toFixed(2) + 's');
+          bubble.style.setProperty('--rise-delay', (Math.random() * -40).toFixed(2) + 's');
+          bubble.style.setProperty('--sway-duration', (3.5 + Math.random() * 6).toFixed(2) + 's');
+          bubble.style.setProperty('--opacity', (opts.dim + Math.random() * 0.4).toFixed(2));
+          bubble.style.setProperty('--hue', (Math.random() * 60 - 20).toFixed(0) + 'deg');
+
+          fragment.appendChild(bubble);
+        }
+
+        layer.appendChild(fragment);
       }
 
-      var fragment = document.createDocumentFragment();
+      /* ---------------------------------------------------- sparkles */
+      function fillSparkles(layer, count) {
+        if (!layer) {
+          return;
+        }
 
-      for (var i = 0; i < BUBBLE_COUNT; i++) {
-        var bubble = document.createElement('span');
-        var size = 12 + Math.random() * 74;
+        var fragment = document.createDocumentFragment();
 
-        bubble.className = 'bubble';
-        bubble.style.setProperty('--size', size.toFixed(1) + 'px');
-        bubble.style.setProperty('--left', (Math.random() * 100).toFixed(2) + '%');
-        bubble.style.setProperty('--drift', (Math.random() * 120 - 60).toFixed(1) + 'px');
-        bubble.style.setProperty('--rise-duration', (16 + Math.random() * 22).toFixed(2) + 's');
-        bubble.style.setProperty('--rise-delay', (Math.random() * -34).toFixed(2) + 's');
-        bubble.style.setProperty('--sway-duration', (4 + Math.random() * 5).toFixed(2) + 's');
-        bubble.style.setProperty('--opacity', (0.28 + Math.random() * 0.42).toFixed(2));
+        for (var i = 0; i < count; i++) {
+          var spark = document.createElement('span');
 
-        fragment.appendChild(bubble);
+          spark.className = 'sparkle';
+          spark.style.setProperty('--left', (Math.random() * 100).toFixed(2) + '%');
+          spark.style.setProperty('--top', (Math.random() * 80).toFixed(2) + '%');
+          spark.style.setProperty('--size', (3 + Math.random() * 9).toFixed(1) + 'px');
+          spark.style.setProperty('--twinkle', (2.4 + Math.random() * 4).toFixed(2) + 's');
+          spark.style.setProperty('--twinkle-delay', (Math.random() * -6).toFixed(2) + 's');
+
+          fragment.appendChild(spark);
+        }
+
+        layer.appendChild(fragment);
       }
 
-      layer.appendChild(fragment);
+      if (!reduceMotion) {
+        fillBubbles(document.querySelector('.bubbles-far'), 30, { min: 6, max: 34, slow: 22, vary: 20, dim: 0.18 });
+        fillBubbles(document.querySelector('.bubbles-near'), 16, { min: 30, max: 120, slow: 14, vary: 18, dim: 0.22 });
+        fillSparkles(document.querySelector('.sparkles'), 26);
+      }
+
+      /* ---------------------------------------------------- parallax */
+      var layers = [].slice.call(document.querySelectorAll('[data-parallax]'));
+      var targetX = 0;
+      var targetY = 0;
+      var currentX = 0;
+      var currentY = 0;
+      var ticking = false;
+
+      function render() {
+        currentX += (targetX - currentX) * 0.06;
+        currentY += (targetY - currentY) * 0.06;
+
+        layers.forEach(function (layer) {
+          var depth = parseFloat(layer.dataset.parallax);
+          layer.style.setProperty('--px', (currentX * depth * 26).toFixed(2) + 'px');
+          layer.style.setProperty('--py', (currentY * depth * 16).toFixed(2) + 'px');
+        });
+
+        if (Math.abs(targetX - currentX) > 0.001 || Math.abs(targetY - currentY) > 0.001) {
+          requestAnimationFrame(render);
+        } else {
+          ticking = false;
+        }
+      }
+
+      function queue() {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(render);
+        }
+      }
+
+      if (!reduceMotion && window.matchMedia('(hover: hover)').matches) {
+        window.addEventListener('mousemove', function (event) {
+          targetX = (event.clientX / window.innerWidth) * 2 - 1;
+          targetY = (event.clientY / window.innerHeight) * 2 - 1;
+          queue();
+        });
+      }
     }());
   </script>
 </body>
